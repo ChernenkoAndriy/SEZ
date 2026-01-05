@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./sez
+
     services:
       postgres:
         image: postgres:latest
@@ -35,6 +39,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
           cache: 'maven'
+          cache-dependency-path: sez/pom.xml
 
       - name: Make mvnw executable
         run: chmod +x mvnw
