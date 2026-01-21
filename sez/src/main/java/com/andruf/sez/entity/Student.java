@@ -10,6 +10,9 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 public class Student extends User {
+    private String educationLevel;
+    private String learningGoals;
 }

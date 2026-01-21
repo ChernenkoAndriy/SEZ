@@ -1,20 +1,23 @@
 package com.andruf.sez.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tutors")
+@Table(name = "subjects")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Tutor extends User {
-    private String bio;
-    private BigDecimal hourlyRate;
-    private Double rating;
+public class Subject extends BaseEntity {
+
+    @Column(unique = true, nullable = false)
+    private String name;
+
+    @Column(length = 1000)
+    private String description;
 }
