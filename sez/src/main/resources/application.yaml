@@ -1,3 +1,13 @@
 spring:
   application:
     name: sez
+  docker:
+    compose:
+      file: /home/andruf/IdeaProjects/sez/sez/compose.yaml
+  security:
+      user:
+        name: andruf
+        password: changemeinprod
+  jpa:
+    hibernate:
+      ddl-auto: update
