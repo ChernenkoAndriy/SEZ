@@ -1,0 +1,209 @@
+paths:
+  /enrollments:
+    post:
+      tags: [ Enrollments ]
+      summary: Request enrollment in a course
+      operationId: requestEnrollment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnrollmentDto'
+      responses:
+        '201':
+          description: Enrollment request sent successfully
+    get:
+      tags: [ Enrollments ]
+      summary: Get list of enrollments for student or tutor
+      operationId: getEnrollments
+      parameters:
+        - name: studentName
+          in: query
+          description: Filter by student name or surname
+          schema:
+            type: string
+        - name: tutorName
+          in: query
+          description: Filter by tutor name or surname
+          schema:
+            type: string
+        - name: courseName
+          in: query
+          description: Filter by subject/course name
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Number of items per page (max 20)
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+      responses:
+        '200':
+          description: List of enrollments retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnrollmentResponse'
+  /enrollments/my-active:
+    get:
+      tags: [ Enrollments ]
+      summary: Get list of active enrollments for current student
+      operationId: getMyActiveEnrollments
+      parameters:
+        - name: studentName
+          in: query
+          description: Filter by student name or surname
+          schema:
+            type: string
+        - name: courseName
+          in: query
+          description: Filter by subject/course name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of active enrollments retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnrollmentDetailsResponse'
+  /enrollments/{id}/details:
+    get:
+      tags: [ Enrollments ]
+      summary: Get full enrollment details including student and course objects
+      operationId: getEnrollmentDetails
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Full enrollment details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentDetailsResponse'
+        '404':
+          description: Enrollment not found
+  /enrollments/{id}:
+    patch:
+      tags: [ Enrollments ]
+      summary: Confirm or update enrollment status
+      operationId: updateEnrollmentStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnrollmentDto'
+      responses:
+        '200':
+          description: Enrollment status updated successfully
+        '404':
+          description: Enrollment not found
+
+    delete:
+      tags: [ Enrollments ]
+      summary: Terminate enrollment
+      description: Deletes enrollment and associated planned lessons
+      operationId: terminateEnrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Enrollment terminated successfully
+        '404':
+          description: Enrollment not found
+  /by-course/{courseId}:
+      delete:
+        tags: [ Enrollments ]
+        summary: Terminate enrollment by course ID
+        description: >
+          Видаляє запис на навчання за ID курсу. 
+          ID поточного студента визначається автоматично сервером через токен авторизації.
+        operationId: terminateEnrollmentByCourse
+        parameters:
+          - name: courseId
+            in: path
+            required: true
+            description: ID курсу, запис на який потрібно видалити
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '204':
+            description: Enrollment terminated successfully
+          '401':
+            description: Unauthorized (користувач не авторизований)
+          '404':
+            description: Enrollment not found for this course and current student
+components:
+  schemas:
+    EnrollmentResponse:
+      type: object
+      required: [ id, courseId, studentId, subjectName, tutorName, status ]
+      properties:
+        id: { type: string, format: uuid }
+        courseId: { type: string, format: uuid }
+        studentId: { type: string, format: uuid }
+        subjectName: { type: string }
+        tutorName: { type: string }
+        status:
+          type: string
+          enum: [ REQUESTED, ACTIVE ]
+
+    CreateEnrollmentDto:
+      type: object
+      required: [ courseId ]
+      properties:
+        courseId: { type: string, format: uuid }
+
+    UpdateEnrollmentDto:
+      type: object
+      required: [ status ]
+      properties:
+        status:
+          type: string
+          enum: [ ACTIVE ]
+          description: Use ACTIVE to confirm the enrollment request
+
+    EnrollmentDetailsResponse:
+      type: object
+      required: [id, status, student, course]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [ REQUESTED, ACTIVE]
+        student:
+          $ref: 'students.yaml#/components/schemas/StudentResponse'
+        course:
+          $ref: 'courses.yaml#/components/schemas/CourseResponse'

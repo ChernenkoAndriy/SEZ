@@ -1,18 +1,23 @@
 package com.andruf.sez.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Entity
 @Table(name = "students")
+@NoArgsConstructor
+@SuperBuilder
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
 public class Student extends User {
-    private String educationLevel;
-    private String learningGoals;
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "id")
+    private User user;
+
+    @OneToMany(mappedBy = "student")
+    private List<Enrollment> enrollments;
 }

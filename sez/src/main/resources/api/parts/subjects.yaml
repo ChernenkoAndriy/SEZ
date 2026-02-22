@@ -1,0 +1,67 @@
+paths:
+  /subjects:
+    get:
+      tags: [ Subjects ]
+      summary: Get list of all available subjects
+      operationId: getSubjects
+      responses:
+        '200':
+          description: List of subjects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubjectResponse'
+    post:
+      tags: [ Subjects ]
+      summary: Create a new subject
+      operationId: createSubject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubjectDto'
+      responses:
+        '201':
+          description: Subject created successfully
+
+  /subjects/{id}:
+    delete:
+      tags: [ Subjects ]
+      summary: Delete subject by ID
+      description: Deletion will be blocked if any courses are linked to this subject
+      operationId: deleteSubject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Subject deleted successfully
+        '400':
+          description: Cannot delete subject linked to existing courses
+        '404':
+          description: Subject not found
+
+components:
+  schemas:
+    SubjectResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+
+    CreateSubjectDto:
+      type: object
+      required: [ name ]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: "Name of the subject (e.g., Mathematics, English)"

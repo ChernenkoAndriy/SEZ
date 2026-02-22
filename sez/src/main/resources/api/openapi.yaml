@@ -1,0 +1,110 @@
+openapi: 3.0.3
+info:
+  title: SEZ Tutoring Platform API
+  version: 1.0.0
+  description: API for managing the tutoring system (CRM)
+
+servers:
+  - url: http://localhost:8080
+    description: Local Server
+
+paths:
+  /api/v1/auth/login:
+    $ref: 'parts/auth.yaml#/paths/~1login'
+  /api/v1/auth/google:
+    $ref: 'parts/auth.yaml#/paths/~1google'
+  /api/v1/auth/complete-registration:
+    $ref: 'parts/auth.yaml#/paths/~1complete-registration'
+  /api/v1/auth/register/tutor:
+    $ref: 'parts/auth.yaml#/paths/~1register~1tutor'
+  /api/v1/auth/register/student:
+    $ref: 'parts/auth.yaml#/paths/~1register~1student'
+  /api/v1/auth/forgot-password:
+    $ref: 'parts/auth.yaml#/paths/~1forgot-password'
+  /api/v1/auth/reset-password:
+    $ref: 'parts/auth.yaml#/paths/~1reset-password'
+
+  /api/v1/tutors:
+    $ref: 'parts/tutors.yaml#/paths/~1tutors'
+  /api/v1/tutors/{id}:
+    $ref: 'parts/tutors.yaml#/paths/~1tutors~1{id}'
+  /api/v1/students:
+    $ref: 'parts/students.yaml#/paths/~1students'
+  /api/v1/students/{id}:
+    $ref: 'parts/students.yaml#/paths/~1students~1{id}'
+  /api/v1/courses/{courseId}/students:
+    $ref: 'parts/students.yaml#/paths/~1courses~1{courseId}~1students'
+
+  /api/v1/subjects:
+    $ref: 'parts/subjects.yaml#/paths/~1subjects'
+  /api/v1/subjects/{id}:
+    $ref: 'parts/subjects.yaml#/paths/~1subjects~1{id}'
+  /api/v1/courses:
+    $ref: 'parts/courses.yaml#/paths/~1courses'
+  /api/v1/courses/my:
+    $ref: 'parts/courses.yaml#/paths/~1courses~1my'
+  /api/v1/courses/{id}:
+    $ref: 'parts/courses.yaml#/paths/~1courses~1{id}'
+
+  /api/v1/enrollments:
+    $ref: 'parts/enrollments.yaml#/paths/~1enrollments'
+  /api/v1/enrollments/{id}:
+    $ref: 'parts/enrollments.yaml#/paths/~1enrollments~1{id}'
+  /api/v1/enrollments/{id}/details:
+    $ref: 'parts/enrollments.yaml#/paths/~1enrollments~1{id}~1details'
+  /api/v1/enrollments/my-active:
+    $ref: 'parts/enrollments.yaml#/paths/~1enrollments~1my-active'
+  /api/v1/enrollments/by-course/{courseId}:
+    $ref: 'parts/enrollments.yaml#/paths/~1by-course~1{courseId}'
+
+  /api/v1/lessons:
+    $ref: 'parts/lessons.yaml#/paths/~1lessons'
+  /api/v1/lessons/my:
+    $ref: 'parts/lessons.yaml#/paths/~1lessons~1my'
+  /api/v1/lessons/{id}:
+    $ref: 'parts/lessons.yaml#/paths/~1lessons~1{id}'
+  /lessons/{id}/details:
+    $ref: 'parts/lessons.yaml#/paths/~1lessons~1{id}~1details'
+
+  /api/v1/assignments/my:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1my'
+  /api/v1/assignments/tutor/my:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1tutor~1my'
+  /api/v1/assignments/lesson/{lessonId}:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1lesson~1{lessonId}'
+  /api/v1/assignments/{id}:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1{id}'
+  /api/v1/assignments/{id}/submit:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1{id}~1submit'
+  /api/v1/assignments/{id}/grade:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1{id}~1grade'
+  # Додані ендпоїнти для файлів
+  /api/v1/assignments/{id}/attachments:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1{id}~1attachments'
+  /api/v1/assignments/attachments/{attachmentId}:
+    $ref: 'parts/assignments.yaml#/paths/~1assignments~1attachments~1{attachmentId}'
+
+  /api/v1/reviews:
+    $ref: 'parts/reviews.yaml#/paths/~1reviews'
+  /api/v1/reviews/my:
+    $ref: 'parts/reviews.yaml#/paths/~1reviews~1my'
+  /api/v1/reviews/{id}:
+    $ref: 'parts/reviews.yaml#/paths/~1reviews~1{id}'
+
+  /api/v1/notifications/announcements:
+    $ref: 'parts/notifications.yaml#/paths/~1notifications~1announcements'
+  /api/v1/notifications/requests:
+    $ref: 'parts/notifications.yaml#/paths/~1notifications~1requests'
+  /api/v1/notifications/{id}:
+    $ref: 'parts/notifications.yaml#/paths/~1notifications~1{id}'
+  /api/v1/notifications/{id}/handle:
+    $ref: 'parts/notifications.yaml#/paths/~1notifications~1{id}~1handle'
+
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message: { type: string }
+        code: { type: string }

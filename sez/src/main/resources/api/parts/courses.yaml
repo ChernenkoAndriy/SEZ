@@ -1,0 +1,217 @@
+paths:
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: Search available courses with filters for students
+      operationId: searchCourses
+      parameters:
+        - name: tutorName
+          in: query
+          description: Filter by tutor first or last name
+          schema:
+            type: string
+        - name: courseName
+          in: query
+          description: Filter by course (subject) name
+          schema:
+            type: string
+        - name: maxRate
+          in: query
+          description: Maximum hourly rate
+          schema:
+            type: number
+        - name: excludeEnrolled
+          in: query
+          description: If true, returns only courses where the current student is not enrolled
+          schema:
+            type: boolean
+            default: true
+        - name: sortBy
+          in: query
+          description: "Sorting criteria. Multiple values allowed (e.g., sortBy=rating_desc&sortBy=price_asc)"
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [price_asc, price_desc, rating_asc, rating_desc]
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Number of items per page (max 20)
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseResponse'
+    post:
+      tags: [ Courses ]
+      summary: Create a new course offering
+      operationId: createCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseDto'
+      responses:
+        '201':
+          description: Course created successfully
+
+  /courses/my:
+    get:
+      tags: [ Courses ]
+      summary: Get personal courses for tutor
+      operationId: getMyCourses
+      parameters:
+        - name: courseName
+          in: query
+          description: Filter by course (subject) name
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+      responses:
+        '200':
+          description: List of personal courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseResponse'
+
+  /courses/{id}:
+    get:
+      tags: [ Courses ]
+      summary: Get course details by ID
+      operationId: getCourseById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the course
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detailed information about the course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseResponse'
+        '404':
+          description: Course not found
+
+    patch:
+      tags: [ Courses ]
+      summary: Update course details
+      operationId: updateCourse
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCourseDto'
+      responses:
+        '200':
+          description: Course updated successfully
+        '404':
+          description: Course not found
+
+    delete:
+      tags: [ Courses ]
+      summary: Delete course by ID
+      description: Deletion will be blocked if active enrollments exist
+      operationId: deleteCourse
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Course deleted successfully
+        '400':
+          description: Cannot delete course with active students
+        '404':
+          description: Course not found
+
+components:
+  schemas:
+    CourseResponse:
+      type: object
+      required: [id, tutorName, tutorSurname, tutorId, subjectName, hourlyRate, rating, description]
+      properties:
+        id: { type: string, format: uuid }
+        tutorName: { type: string }
+        tutorSurname: { type: string }
+        tutorId: { type: string, format: uuid }
+        subjectName: { type: string }
+        hourlyRate: { type: number }
+        description: { type: string }
+        rating: { type: number, minimum: 1, maximum: 5 }
+
+    CreateCourseDto:
+      type: object
+      required: [ subjectId, hourlyRate, description ]
+      properties:
+        subjectId:
+          type: string
+          format: uuid
+        hourlyRate:
+          type: number
+          minimum: 1
+          description: "Hourly rate for tutoring services. Must be at least 1.0"
+        description:
+          type: string
+          minLength: 2
+          maxLength: 1000
+          description: "Course description for potential students"
+
+    UpdateCourseDto:
+      type: object
+      properties:
+        hourlyRate:
+          type: number
+          minimum: 1
+          description: "Hourly rate for tutoring services. Must be at least 1.0"
+        description:
+          type: string
+          minLength: 2
+          maxLength: 1000
+          description: "Course description for potential students"

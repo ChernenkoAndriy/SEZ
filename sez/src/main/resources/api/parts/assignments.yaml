@@ -1,0 +1,292 @@
+paths:
+  /assignments/my:
+    get:
+      tags: [ Assignments ]
+      summary: Get list of assignments for the current student
+      operationId: getStudentAssignments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssignmentStatus'
+        - name: courseName
+          in: query
+          schema:
+            type: string
+        - name: tutorName
+          in: query
+          schema:
+            type: string
+        - name: dateDescending
+          in: query
+          description: Sort by date. True for newest first, False for oldest first.
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of student's assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentResponse'
+
+  /assignments/tutor/my:
+    get:
+      tags: [ Assignments ]
+      summary: Get list of assignments managed by the tutor
+      operationId: getTutorAssignments
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssignmentStatus'
+        - name: courseId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: studentName
+          in: query
+          schema:
+            type: string
+        - name: dateDescending
+          in: query
+          description: Sort by date. True for newest first, False for oldest first.
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of assignments for the tutor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentResponse'
+
+  /assignments/lesson/{lessonId}:
+    post:
+      tags: [ Assignments ]
+      summary: Create a new assignment for a specific lesson
+      operationId: createAssignment
+      parameters:
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssignmentDto'
+      responses:
+        '201':
+          description: Assignment created successfully
+
+  /assignments/{id}:
+    patch:
+      tags: [ Assignments ]
+      summary: Update assignment title and description
+      operationId: updateAssignmentInfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAssignmentInfoDto'
+      responses:
+        '200':
+          description: Assignment info updated successfully
+
+  /assignments/{id}/submit:
+    post:
+      tags: [ Assignments ]
+      summary: Mark assignment as completed by student
+      operationId: completeAssignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Assignment marked as completed
+
+  /assignments/{id}/grade:
+    patch:
+      tags: [ Assignments ]
+      summary: Grade the completed assignment
+      operationId: gradeAssignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeAssignmentDto'
+      responses:
+        '200':
+          description: Assignment graded successfully
+
+  /assignments/{id}/attachments:
+    get:
+      tags: [ Assignments ]
+      summary: Get assignment details for a specific lesson
+      operationId: getAssignmentByLesson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Assignment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentResponse'
+        '404':
+          description: Assignment not found for this lesson
+    post:
+      tags: [ Assignments ]
+      summary: Upload a file to assignment
+      operationId: uploadAttachment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: File uploaded successfully
+
+  /assignments/attachments/{attachmentId}:
+    get:
+      tags: [ Assignments ]
+      summary: Download attachment content
+      operationId: downloadAttachment
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The file content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    AssignmentResponse:
+      type: object
+      required: [ id, lessonId, lessonStartTime, tutorFullName, studentFullName, title, description, status ]
+      properties:
+        id: { type: string, format: uuid }
+        lessonId: { type: string, format: uuid }
+        lessonStartTime: { type: string, format: date-time }
+        tutorFullName: { type: string }
+        studentFullName: { type: string }
+        title: { type: string }
+        description: { type: string }
+        status: { $ref: '#/components/schemas/AssignmentStatus' }
+        grade: { type: integer, minimum: 0, maximum: 100 }
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+
+    CreateAssignmentDto:
+      type: object
+      required: [ title, description ]
+      properties:
+        title:
+          type: string
+          minLength: 3
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1,
+          maxLength: 2000
+
+    UpdateAssignmentInfoDto:
+      type: object
+      properties:
+        title: { type: string, minLength: 3, maxLength: 200 }
+        description: { type: string, minLength: 1, maxLength: 2000 }
+
+    GradeAssignmentDto:
+      type: object
+      required: [ grade ]
+      properties:
+        grade: { type: integer, minimum: 0, maximum: 100 }
+
+    AssignmentStatus:
+      type: string
+      enum: [ PENDING, COMPLETED, GRADED ]
+
+    AttachmentResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        fileName: { type: string }

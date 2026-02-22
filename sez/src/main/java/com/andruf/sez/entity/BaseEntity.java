@@ -5,18 +5,19 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @MappedSuperclass
-public abstract class BaseEntity {
+public abstract class BaseEntity<ID extends Comparable<ID>> implements Serializable, IGettableById<ID> {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private ID id;
 
     @CreationTimestamp
     @Column(updatable = false)

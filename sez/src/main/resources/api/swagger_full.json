@@ -1,0 +1,2641 @@
+{
+  "openapi" : "3.0.3",
+  "info" : {
+    "description" : "API for managing the tutoring system (CRM)",
+    "title" : "SEZ Tutoring Platform API",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "description" : "Local Server",
+    "url" : "http://localhost:8080"
+  } ],
+  "paths" : {
+    "/api/v1/auth/login" : {
+      "post" : {
+        "operationId" : "authenticateUser",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "Successful login"
+          },
+          "401" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid credentials"
+          }
+        },
+        "summary" : "Authentication via email and password",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/google" : {
+      "post" : {
+        "operationId" : "authenticateGoogle",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GoogleLoginDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "Successful Google authentication"
+          }
+        },
+        "summary" : "Authentication via Google ID Token",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/complete-registration" : {
+      "post" : {
+        "operationId" : "completeRegistration",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CompleteRegistrationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            },
+            "description" : "Registration completed"
+          }
+        },
+        "summary" : "Complete profile registration for OAuth users",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/register/tutor" : {
+      "post" : {
+        "operationId" : "registerTutor",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TutorRegistrationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Tutor registered"
+          }
+        },
+        "summary" : "Register a new tutor",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/register/student" : {
+      "post" : {
+        "operationId" : "registerStudent",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StudentRegistrationDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Student registered"
+          }
+        },
+        "summary" : "Register a new student",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/forgot-password" : {
+      "post" : {
+        "operationId" : "forgotPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Reset email sent"
+          }
+        },
+        "summary" : "Request password reset link",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/auth/reset-password" : {
+      "post" : {
+        "operationId" : "resetPassword",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description" : "Password changed successfully"
+          },
+          "400" : {
+            "description" : "Invalid or expired token"
+          }
+        },
+        "summary" : "Set new password using token",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/api/v1/tutors" : {
+      "get" : {
+        "operationId" : "getTutors",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/TutorResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of tutors retrieved successfully"
+          }
+        },
+        "summary" : "Get list of tutors",
+        "tags" : [ "Tutors" ]
+      }
+    },
+    "/api/v1/tutors/{id}" : {
+      "get" : {
+        "operationId" : "getTutorById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TutorResponse"
+                }
+              }
+            },
+            "description" : "Tutor profile retrieved successfully"
+          },
+          "404" : {
+            "description" : "Tutor not found"
+          }
+        },
+        "summary" : "Get tutor profile by ID",
+        "tags" : [ "Tutors" ]
+      },
+      "patch" : {
+        "operationId" : "updateTutor",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateTutorDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Tutor profile updated successfully"
+          },
+          "404" : {
+            "description" : "Tutor not found"
+          }
+        },
+        "summary" : "Update tutor profile data",
+        "tags" : [ "Tutors" ]
+      }
+    },
+    "/api/v1/students" : {
+      "get" : {
+        "operationId" : "getStudents",
+        "parameters" : [ {
+          "description" : "Filter by student name or surname",
+          "in" : "query",
+          "name" : "name",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Filter by course (subject) name",
+          "in" : "query",
+          "name" : "courseName",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/StudentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of students retrieved successfully"
+          }
+        },
+        "summary" : "Get list of students for current tutor",
+        "tags" : [ "Students" ]
+      }
+    },
+    "/api/v1/students/{id}" : {
+      "get" : {
+        "operationId" : "getStudentById",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StudentResponse"
+                }
+              }
+            },
+            "description" : "Student data retrieved successfully"
+          },
+          "404" : {
+            "description" : "Student not found"
+          }
+        },
+        "summary" : "Get student by ID",
+        "tags" : [ "Students" ]
+      },
+      "patch" : {
+        "operationId" : "updateStudent",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateStudentDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Student profile updated successfully"
+          },
+          "404" : {
+            "description" : "Student not found"
+          }
+        },
+        "summary" : "Update student profile data",
+        "tags" : [ "Students" ]
+      }
+    },
+    "/api/v1/courses/{courseId}/students" : {
+      "get" : {
+        "operationId" : "getStudentsByCourseId",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/StudentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of students by course retrieved successfully"
+          },
+          "404" : {
+            "description" : "Course not found"
+          }
+        },
+        "summary" : "Get list of students enrolled on the course",
+        "tags" : [ "Students" ]
+      }
+    },
+    "/api/v1/subjects" : {
+      "get" : {
+        "operationId" : "getSubjects",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/SubjectResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of subjects retrieved successfully"
+          }
+        },
+        "summary" : "Get list of all available subjects",
+        "tags" : [ "Subjects" ]
+      },
+      "post" : {
+        "operationId" : "createSubject",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateSubjectDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Subject created successfully"
+          }
+        },
+        "summary" : "Create a new subject",
+        "tags" : [ "Subjects" ]
+      }
+    },
+    "/api/v1/subjects/{id}" : {
+      "delete" : {
+        "description" : "Deletion will be blocked if any courses are linked to this subject",
+        "operationId" : "deleteSubject",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Subject deleted successfully"
+          },
+          "400" : {
+            "description" : "Cannot delete subject linked to existing courses"
+          },
+          "404" : {
+            "description" : "Subject not found"
+          }
+        },
+        "summary" : "Delete subject by ID",
+        "tags" : [ "Subjects" ]
+      }
+    },
+    "/api/v1/courses" : {
+      "get" : {
+        "operationId" : "searchCourses",
+        "parameters" : [ {
+          "description" : "Filter by tutor first or last name",
+          "in" : "query",
+          "name" : "tutorName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Filter by course (subject) name",
+          "in" : "query",
+          "name" : "courseName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Maximum hourly rate",
+          "in" : "query",
+          "name" : "maxRate",
+          "schema" : {
+            "type" : "number"
+          }
+        }, {
+          "description" : "If true, returns only courses where the current student is not enrolled",
+          "in" : "query",
+          "name" : "excludeEnrolled",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Sorting criteria. Multiple values allowed (e.g., sortBy=rating_desc&sortBy=price_asc)",
+          "explode" : true,
+          "in" : "query",
+          "name" : "sortBy",
+          "schema" : {
+            "items" : {
+              "enum" : [ "price_asc", "price_desc", "rating_asc", "rating_desc" ],
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "style" : "form"
+        }, {
+          "description" : "Page number",
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "description" : "Number of items per page (max 20)",
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "maximum" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/CourseResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "Successful response"
+          }
+        },
+        "summary" : "Search available courses with filters for students",
+        "tags" : [ "Courses" ]
+      },
+      "post" : {
+        "operationId" : "createCourse",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateCourseDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Course created successfully"
+          }
+        },
+        "summary" : "Create a new course offering",
+        "tags" : [ "Courses" ]
+      }
+    },
+    "/api/v1/courses/my" : {
+      "get" : {
+        "operationId" : "getMyCourses",
+        "parameters" : [ {
+          "description" : "Filter by course (subject) name",
+          "in" : "query",
+          "name" : "courseName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "maximum" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/CourseResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of personal courses"
+          }
+        },
+        "summary" : "Get personal courses for tutor",
+        "tags" : [ "Courses" ]
+      }
+    },
+    "/api/v1/courses/{id}" : {
+      "delete" : {
+        "description" : "Deletion will be blocked if active enrollments exist",
+        "operationId" : "deleteCourse",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Course deleted successfully"
+          },
+          "400" : {
+            "description" : "Cannot delete course with active students"
+          },
+          "404" : {
+            "description" : "Course not found"
+          }
+        },
+        "summary" : "Delete course by ID",
+        "tags" : [ "Courses" ]
+      },
+      "get" : {
+        "operationId" : "getCourseById",
+        "parameters" : [ {
+          "description" : "Unique identifier of the course",
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description" : "Detailed information about the course"
+          },
+          "404" : {
+            "description" : "Course not found"
+          }
+        },
+        "summary" : "Get course details by ID",
+        "tags" : [ "Courses" ]
+      },
+      "patch" : {
+        "operationId" : "updateCourse",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateCourseDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Course updated successfully"
+          },
+          "404" : {
+            "description" : "Course not found"
+          }
+        },
+        "summary" : "Update course details",
+        "tags" : [ "Courses" ]
+      }
+    },
+    "/api/v1/enrollments" : {
+      "get" : {
+        "operationId" : "getEnrollments",
+        "parameters" : [ {
+          "description" : "Filter by student name or surname",
+          "in" : "query",
+          "name" : "studentName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Filter by tutor name or surname",
+          "in" : "query",
+          "name" : "tutorName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Filter by subject/course name",
+          "in" : "query",
+          "name" : "courseName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Page number",
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "description" : "Number of items per page (max 20)",
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "maximum" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/EnrollmentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of enrollments retrieved"
+          }
+        },
+        "summary" : "Get list of enrollments for student or tutor",
+        "tags" : [ "Enrollments" ]
+      },
+      "post" : {
+        "operationId" : "requestEnrollment",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateEnrollmentDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Enrollment request sent successfully"
+          }
+        },
+        "summary" : "Request enrollment in a course",
+        "tags" : [ "Enrollments" ]
+      }
+    },
+    "/api/v1/enrollments/{id}" : {
+      "delete" : {
+        "description" : "Deletes enrollment and associated planned lessons",
+        "operationId" : "terminateEnrollment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Enrollment terminated successfully"
+          },
+          "404" : {
+            "description" : "Enrollment not found"
+          }
+        },
+        "summary" : "Terminate enrollment",
+        "tags" : [ "Enrollments" ]
+      },
+      "patch" : {
+        "operationId" : "updateEnrollmentStatus",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateEnrollmentDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Enrollment status updated successfully"
+          },
+          "404" : {
+            "description" : "Enrollment not found"
+          }
+        },
+        "summary" : "Confirm or update enrollment status",
+        "tags" : [ "Enrollments" ]
+      }
+    },
+    "/api/v1/enrollments/{id}/details" : {
+      "get" : {
+        "operationId" : "getEnrollmentDetails",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EnrollmentDetailsResponse"
+                }
+              }
+            },
+            "description" : "Full enrollment details retrieved"
+          },
+          "404" : {
+            "description" : "Enrollment not found"
+          }
+        },
+        "summary" : "Get full enrollment details including student and course objects",
+        "tags" : [ "Enrollments" ]
+      }
+    },
+    "/api/v1/enrollments/my-active" : {
+      "get" : {
+        "operationId" : "getMyActiveEnrollments",
+        "parameters" : [ {
+          "description" : "Filter by student name or surname",
+          "in" : "query",
+          "name" : "studentName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Filter by subject/course name",
+          "in" : "query",
+          "name" : "courseName",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/EnrollmentDetailsResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of active enrollments retrieved"
+          }
+        },
+        "summary" : "Get list of active enrollments for current student",
+        "tags" : [ "Enrollments" ]
+      }
+    },
+    "/api/v1/enrollments/by-course/{courseId}" : {
+      "delete" : {
+        "description" : "Видаляє запис на навчання за ID курсу.  ID поточного студента визначається автоматично сервером через токен авторизації.\n",
+        "operationId" : "terminateEnrollmentByCourse",
+        "parameters" : [ {
+          "description" : "ID курсу, запис на який потрібно видалити",
+          "in" : "path",
+          "name" : "courseId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Enrollment terminated successfully"
+          },
+          "401" : {
+            "description" : "Unauthorized (користувач не авторизований)"
+          },
+          "404" : {
+            "description" : "Enrollment not found for this course and current student"
+          }
+        },
+        "summary" : "Terminate enrollment by course ID",
+        "tags" : [ "Enrollments" ]
+      }
+    },
+    "/api/v1/lessons" : {
+      "post" : {
+        "operationId" : "scheduleLesson",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateLessonDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Lesson scheduled successfully"
+          }
+        },
+        "summary" : "Schedule a new lesson",
+        "tags" : [ "Lessons" ]
+      }
+    },
+    "/api/v1/lessons/my" : {
+      "get" : {
+        "operationId" : "getMyLessons",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "from",
+          "required" : true,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "required" : true,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "schema" : {
+            "enum" : [ "PLANNED", "CONDUCTED", "NO_SHOW" ],
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/LessonResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of lessons retrieved"
+          }
+        },
+        "summary" : "Get lessons for current user (calendar view)",
+        "tags" : [ "Lessons" ]
+      }
+    },
+    "/api/v1/lessons/{id}" : {
+      "delete" : {
+        "description" : "Removes a scheduled lesson from the system.",
+        "operationId" : "deleteLesson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Lesson deleted successfully"
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden - only tutors can delete lessons"
+          },
+          "404" : {
+            "description" : "Lesson not found"
+          }
+        },
+        "summary" : "Delete a lesson by ID",
+        "tags" : [ "Lessons" ]
+      },
+      "patch" : {
+        "operationId" : "updateLesson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateLessonDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Lesson updated successfully"
+          },
+          "404" : {
+            "description" : "Lesson not found"
+          }
+        },
+        "summary" : "Update lesson details (time, status, or meeting link)",
+        "tags" : [ "Lessons" ]
+      }
+    },
+    "/lessons/{id}/details" : {
+      "get" : {
+        "operationId" : "getLessonDetails",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LessonDetailsResponse"
+                }
+              }
+            },
+            "description" : "Full lesson details retrieved"
+          },
+          "404" : {
+            "description" : "Lesson not found"
+          }
+        },
+        "summary" : "Get full lesson details including tutor, student and course info",
+        "tags" : [ "Lessons" ]
+      }
+    },
+    "/api/v1/assignments/my" : {
+      "get" : {
+        "operationId" : "getStudentAssignments",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "schema" : {
+            "$ref" : "#/components/schemas/AssignmentStatus"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "tutorName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Sort by date. True for newest first, False for oldest first.",
+          "in" : "query",
+          "name" : "dateDescending",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AssignmentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of student's assignments"
+          }
+        },
+        "summary" : "Get list of assignments for the current student",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/tutor/my" : {
+      "get" : {
+        "operationId" : "getTutorAssignments",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "schema" : {
+            "$ref" : "#/components/schemas/AssignmentStatus"
+          }
+        }, {
+          "in" : "query",
+          "name" : "courseId",
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "studentName",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Sort by date. True for newest first, False for oldest first.",
+          "in" : "query",
+          "name" : "dateDescending",
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AssignmentResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of assignments for the tutor"
+          }
+        },
+        "summary" : "Get list of assignments managed by the tutor",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/lesson/{lessonId}" : {
+      "post" : {
+        "operationId" : "createAssignment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "lessonId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateAssignmentDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Assignment created successfully"
+          }
+        },
+        "summary" : "Create a new assignment for a specific lesson",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/{id}" : {
+      "patch" : {
+        "operationId" : "updateAssignmentInfo",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateAssignmentInfoDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Assignment info updated successfully"
+          }
+        },
+        "summary" : "Update assignment title and description",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/{id}/submit" : {
+      "post" : {
+        "operationId" : "completeAssignment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Assignment marked as completed"
+          }
+        },
+        "summary" : "Mark assignment as completed by student",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/{id}/grade" : {
+      "patch" : {
+        "operationId" : "gradeAssignment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GradeAssignmentDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Assignment graded successfully"
+          }
+        },
+        "summary" : "Grade the completed assignment",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/{id}/attachments" : {
+      "get" : {
+        "operationId" : "getAssignmentByLesson",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssignmentResponse"
+                }
+              }
+            },
+            "description" : "Assignment details"
+          },
+          "404" : {
+            "description" : "Assignment not found for this lesson"
+          }
+        },
+        "summary" : "Get assignment details for a specific lesson",
+        "tags" : [ "Assignments" ]
+      },
+      "post" : {
+        "operationId" : "uploadAttachment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/uploadAttachment_request"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "File uploaded successfully"
+          }
+        },
+        "summary" : "Upload a file to assignment",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/assignments/attachments/{attachmentId}" : {
+      "get" : {
+        "operationId" : "downloadAttachment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "attachmentId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/octet-stream" : {
+                "schema" : {
+                  "format" : "binary",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "The file content"
+          }
+        },
+        "summary" : "Download attachment content",
+        "tags" : [ "Assignments" ]
+      }
+    },
+    "/api/v1/reviews" : {
+      "get" : {
+        "operationId" : "getTutorReviews",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "tutorId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "sortByRatingUp",
+          "schema" : {
+            "default" : false,
+            "description" : "Sort reviews by rating in descending order",
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "maximum" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReviewResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of reviews retrieved successfully"
+          }
+        },
+        "summary" : "Get list of reviews for a specific tutor",
+        "tags" : [ "Reviews" ]
+      },
+      "post" : {
+        "operationId" : "createReview",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateReviewDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Review created successfully"
+          }
+        },
+        "summary" : "Create a new review for a tutor",
+        "tags" : [ "Reviews" ]
+      }
+    },
+    "/api/v1/reviews/my" : {
+      "get" : {
+        "operationId" : "getMyReviewForTutor",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "tutorId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReviewResponse"
+                }
+              }
+            },
+            "description" : "Review retrieved successfully"
+          },
+          "404" : {
+            "description" : "Review not found"
+          }
+        },
+        "summary" : "Get current student's review for a specific tutor",
+        "tags" : [ "Reviews" ]
+      }
+    },
+    "/api/v1/reviews/{id}" : {
+      "delete" : {
+        "operationId" : "deleteReview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Review deleted successfully"
+          },
+          "404" : {
+            "description" : "Review not found"
+          }
+        },
+        "summary" : "Delete review by ID",
+        "tags" : [ "Reviews" ]
+      },
+      "patch" : {
+        "operationId" : "updateReview",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateReviewDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Review updated successfully"
+          },
+          "404" : {
+            "description" : "Review not found"
+          }
+        },
+        "summary" : "Update existing review rating and comment",
+        "tags" : [ "Reviews" ]
+      }
+    },
+    "/api/v1/notifications/announcements" : {
+      "get" : {
+        "operationId" : "getAnnouncements",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/AnnouncementResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of announcements"
+          }
+        },
+        "summary" : "Get only informational notifications (announcements)",
+        "tags" : [ "Notifications" ]
+      }
+    },
+    "/api/v1/notifications/requests" : {
+      "get" : {
+        "operationId" : "getActionRequests",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "page",
+          "schema" : {
+            "default" : 0,
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "schema" : {
+            "default" : 20,
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/ActionRequestResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "List of action requests"
+          }
+        },
+        "summary" : "Get only action requests",
+        "tags" : [ "Notifications" ]
+      },
+      "post" : {
+        "operationId" : "createActionRequest",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateActionRequestDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created"
+          }
+        },
+        "summary" : "Create a new action request",
+        "tags" : [ "Notifications" ]
+      }
+    },
+    "/api/v1/notifications/{id}" : {
+      "delete" : {
+        "operationId" : "deleteNotification",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Deleted"
+          }
+        },
+        "summary" : "Delete notification",
+        "tags" : [ "Notifications" ]
+      },
+      "patch" : {
+        "operationId" : "markAsRead",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Marked as read"
+          }
+        },
+        "summary" : "Mark notification as read",
+        "tags" : [ "Notifications" ]
+      }
+    },
+    "/api/v1/notifications/{id}/handle" : {
+      "post" : {
+        "operationId" : "handleNotificationAction",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NotificationHandleDto"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Success"
+          }
+        },
+        "summary" : "Accept or Decline an action request",
+        "tags" : [ "Notifications" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ErrorResponse" : {
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AuthResponse" : {
+        "properties" : {
+          "token" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "registrationComplete" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
+      "LoginDto" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          },
+          "password" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "password" ],
+        "type" : "object"
+      },
+      "GoogleLoginDto" : {
+        "properties" : {
+          "idToken" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "idToken" ],
+        "type" : "object"
+      },
+      "CompleteRegistrationDto" : {
+        "properties" : {
+          "role" : {
+            "enum" : [ "STUDENT", "TUTOR" ],
+            "type" : "string"
+          },
+          "name" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "surname" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "bio" : {
+            "maxLength" : 1000,
+            "type" : "string"
+          }
+        },
+        "required" : [ "name", "role", "surname" ],
+        "type" : "object"
+      },
+      "MessageResponse" : {
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "TutorRegistrationDto" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          },
+          "password" : {
+            "maxLength" : 255,
+            "minLength" : 8,
+            "type" : "string"
+          },
+          "name" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "surname" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "bio" : {
+            "maxLength" : 1000,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "name", "password", "surname" ],
+        "type" : "object"
+      },
+      "StudentRegistrationDto" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          },
+          "password" : {
+            "maxLength" : 255,
+            "minLength" : 8,
+            "type" : "string"
+          },
+          "name" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "surname" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "name", "password", "surname" ],
+        "type" : "object"
+      },
+      "ForgotPasswordDto" : {
+        "properties" : {
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ],
+        "type" : "object"
+      },
+      "ResetPasswordDto" : {
+        "properties" : {
+          "token" : {
+            "type" : "string"
+          },
+          "newPassword" : {
+            "maxLength" : 255,
+            "minLength" : 8,
+            "type" : "string"
+          }
+        },
+        "required" : [ "newPassword", "token" ],
+        "type" : "object"
+      },
+      "TutorResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "surname" : {
+            "type" : "string"
+          },
+          "patronymic" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "hourlyRate" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "rating" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        },
+        "required" : [ "bio", "email", "hourlyRate", "id", "name", "rating", "role", "surname" ],
+        "type" : "object"
+      },
+      "UpdateTutorDto" : {
+        "description" : "Fields that can be updated in tutor profile",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "surname" : {
+            "type" : "string"
+          },
+          "patronymic" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "hourlyRate" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "bio", "hourlyRate", "name", "surname" ],
+        "type" : "object"
+      },
+      "StudentResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "email" : {
+            "format" : "email",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "surname" : {
+            "type" : "string"
+          },
+          "role" : {
+            "enum" : [ "STUDENT" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "id", "name", "role", "surname" ],
+        "type" : "object"
+      },
+      "UpdateStudentDto" : {
+        "properties" : {
+          "name" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "surname" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          },
+          "patronymic" : {
+            "maxLength" : 50,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        },
+        "required" : [ "firstName", "lastName" ],
+        "type" : "object"
+      },
+      "SubjectResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CreateSubjectDto" : {
+        "properties" : {
+          "name" : {
+            "description" : "Name of the subject (e.g., Mathematics, English)",
+            "maxLength" : 100,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        },
+        "required" : [ "name" ],
+        "type" : "object"
+      },
+      "CourseResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "tutorName" : {
+            "type" : "string"
+          },
+          "tutorSurname" : {
+            "type" : "string"
+          },
+          "tutorId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "subjectName" : {
+            "type" : "string"
+          },
+          "hourlyRate" : {
+            "type" : "number"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "rating" : {
+            "maximum" : 5,
+            "minimum" : 1,
+            "type" : "number"
+          }
+        },
+        "required" : [ "description", "hourlyRate", "id", "rating", "subjectName", "tutorId", "tutorName", "tutorSurname" ],
+        "type" : "object"
+      },
+      "CreateCourseDto" : {
+        "properties" : {
+          "subjectId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "hourlyRate" : {
+            "description" : "Hourly rate for tutoring services. Must be at least 1.0",
+            "minimum" : 1,
+            "type" : "number"
+          },
+          "description" : {
+            "description" : "Course description for potential students",
+            "maxLength" : 1000,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "hourlyRate", "subjectId" ],
+        "type" : "object"
+      },
+      "UpdateCourseDto" : {
+        "properties" : {
+          "hourlyRate" : {
+            "description" : "Hourly rate for tutoring services. Must be at least 1.0",
+            "minimum" : 1,
+            "type" : "number"
+          },
+          "description" : {
+            "description" : "Course description for potential students",
+            "maxLength" : 1000,
+            "minLength" : 2,
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "EnrollmentResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "courseId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "studentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "subjectName" : {
+            "type" : "string"
+          },
+          "tutorName" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "REQUESTED", "ACTIVE" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "courseId", "id", "status", "studentId", "subjectName", "tutorName" ],
+        "type" : "object"
+      },
+      "CreateEnrollmentDto" : {
+        "properties" : {
+          "courseId" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "required" : [ "courseId" ],
+        "type" : "object"
+      },
+      "UpdateEnrollmentDto" : {
+        "properties" : {
+          "status" : {
+            "description" : "Use ACTIVE to confirm the enrollment request",
+            "enum" : [ "ACTIVE" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "status" ],
+        "type" : "object"
+      },
+      "EnrollmentDetailsResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "REQUESTED", "ACTIVE" ],
+            "type" : "string"
+          },
+          "student" : {
+            "$ref" : "#/components/schemas/StudentResponse"
+          },
+          "course" : {
+            "$ref" : "#/components/schemas/CourseResponse"
+          }
+        },
+        "required" : [ "course", "id", "status", "student" ],
+        "type" : "object"
+      },
+      "CreateLessonDto" : {
+        "properties" : {
+          "enrollmentId" : {
+            "description" : "ID запису на курс (Enrollment)",
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "startTime" : {
+            "description" : "Час початку уроку. Повинен бути у майбутньому.",
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "endTime" : {
+            "description" : "Час закінчення уроку. Повинен бути після часу початку.",
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "price" : {
+            "description" : "Ціна за урок. Не може бути від’ємною.",
+            "minimum" : 0,
+            "type" : "number"
+          },
+          "videoCallUrl" : {
+            "description" : "Посилання на відеодзвінок.",
+            "format" : "uri",
+            "type" : "string"
+          }
+        },
+        "required" : [ "endTime", "enrollmentId", "startTime" ],
+        "type" : "object"
+      },
+      "LessonResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "startTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "endTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/LessonStatus"
+          },
+          "courseName" : {
+            "type" : "string"
+          },
+          "subjectName" : {
+            "type" : "string"
+          },
+          "partnerName" : {
+            "type" : "string"
+          },
+          "videoCallUrl" : {
+            "format" : "uri",
+            "type" : "string"
+          }
+        },
+        "required" : [ "endTime", "id", "startTime", "status" ],
+        "type" : "object"
+      },
+      "LessonStatus" : {
+        "enum" : [ "PLANNED", "CONDUCTED", "NO_SHOW" ],
+        "type" : "string"
+      },
+      "UpdateLessonDto" : {
+        "description" : "Поля для часткового оновлення уроку. При зміні часу проводиться перевірка на наявність конфліктів у розкладі.",
+        "properties" : {
+          "startTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "endTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "videoCallUrl" : {
+            "format" : "uri",
+            "type" : "string"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/LessonStatus"
+          }
+        },
+        "type" : "object"
+      },
+      "LessonDetailsResponse" : {
+        "properties" : {
+          "lesson" : {
+            "$ref" : "#/components/schemas/LessonResponse"
+          },
+          "enrollmentDetails" : {
+            "$ref" : "#/components/schemas/EnrollmentDetailsResponse"
+          }
+        },
+        "type" : "object"
+      },
+      "AssignmentResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "lessonId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "lessonStartTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "tutorFullName" : {
+            "type" : "string"
+          },
+          "studentFullName" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/AssignmentStatus"
+          },
+          "grade" : {
+            "maximum" : 100,
+            "minimum" : 0,
+            "type" : "integer"
+          },
+          "attachments" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AttachmentResponse"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "description", "id", "lessonId", "lessonStartTime", "status", "studentFullName", "title", "tutorFullName" ],
+        "type" : "object"
+      },
+      "AssignmentStatus" : {
+        "enum" : [ "PENDING", "COMPLETED", "GRADED" ],
+        "type" : "string"
+      },
+      "AttachmentResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "fileName" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CreateAssignmentDto" : {
+        "properties" : {
+          "title" : {
+            "maxLength" : 200,
+            "minLength" : 3,
+            "type" : "string"
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "type" : "string"
+          }
+        },
+        "required" : [ "description", "title" ],
+        "type" : "object"
+      },
+      "UpdateAssignmentInfoDto" : {
+        "properties" : {
+          "title" : {
+            "maxLength" : 200,
+            "minLength" : 3,
+            "type" : "string"
+          },
+          "description" : {
+            "maxLength" : 2000,
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "GradeAssignmentDto" : {
+        "properties" : {
+          "grade" : {
+            "maximum" : 100,
+            "minimum" : 0,
+            "type" : "integer"
+          }
+        },
+        "required" : [ "grade" ],
+        "type" : "object"
+      },
+      "ReviewResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "tutorId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "studentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "tutorName" : {
+            "description" : "Name of the tutor being reviewed",
+            "type" : "string"
+          },
+          "tutorSurname" : {
+            "description" : "Surname of the tutor being reviewed",
+            "type" : "string"
+          },
+          "studentName" : {
+            "description" : "Name of the student who wrote the review",
+            "type" : "string"
+          },
+          "studentSurname" : {
+            "description" : "Surname of the student who wrote the review",
+            "type" : "string"
+          },
+          "rating" : {
+            "maximum" : 5,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "comment" : {
+            "description" : "Detailed feedback from student",
+            "type" : "string"
+          }
+        },
+        "required" : [ "comment", "id", "rating", "studentId", "tutorId" ],
+        "type" : "object"
+      },
+      "CreateReviewDto" : {
+        "properties" : {
+          "tutorId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "rating" : {
+            "description" : "Rating from 1 to 5 stars",
+            "maximum" : 5,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "comment" : {
+            "description" : "Detailed feedback about the course",
+            "maxLength" : 500,
+            "minLength" : 10,
+            "type" : "string"
+          }
+        },
+        "required" : [ "rating", "tutorId" ],
+        "type" : "object"
+      },
+      "UpdateReviewDto" : {
+        "properties" : {
+          "rating" : {
+            "description" : "Rating from 1 to 5 stars",
+            "maximum" : 5,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "comment" : {
+            "description" : "Detailed feedback about the course",
+            "maxLength" : 500,
+            "minLength" : 10,
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AnnouncementResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "isRead" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "createdAt", "id", "isRead", "message" ],
+        "type" : "object"
+      },
+      "ActionRequestResponse" : {
+        "properties" : {
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "isRead" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "actionType" : {
+            "$ref" : "#/components/schemas/NotificationActionType"
+          },
+          "relatedEntityId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "completed" : {
+            "type" : "boolean"
+          },
+          "metadata" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          }
+        },
+        "required" : [ "actionType", "completed", "createdAt", "id", "isRead", "message", "relatedEntityId" ],
+        "type" : "object"
+      },
+      "NotificationActionType" : {
+        "enum" : [ "ENROLLMENT_CONFIRM", "LESSON_RESCHEDULE", "LESSON_CANCEL" ],
+        "type" : "string"
+      },
+      "CreateActionRequestDto" : {
+        "properties" : {
+          "recipientId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "actionType" : {
+            "$ref" : "#/components/schemas/NotificationActionType"
+          },
+          "relatedEntityId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "metadata" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          }
+        },
+        "required" : [ "actionType", "message", "recipientId", "relatedEntityId" ],
+        "type" : "object"
+      },
+      "NotificationHandleDto" : {
+        "properties" : {
+          "confirmed" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "confirmed" ],
+        "type" : "object"
+      },
+      "uploadAttachment_request" : {
+        "properties" : {
+          "file" : {
+            "format" : "binary",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      }
+    }
+  }
+}

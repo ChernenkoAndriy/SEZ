@@ -1,0 +1,151 @@
+paths:
+  /notifications/announcements:
+    get:
+      tags: [ Notifications ]
+      summary: Get only informational notifications (announcements)
+      operationId: getAnnouncements
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnnouncementResponse'
+
+  /notifications/requests:
+    get:
+      tags: [ Notifications ]
+      summary: Get only action requests
+      operationId: getActionRequests
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of action requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActionRequestResponse'
+    post:
+      tags: [ Notifications ]
+      summary: Create a new action request
+      operationId: createActionRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActionRequestDto'
+      responses:
+        '201':
+          description: Created
+
+  /notifications/{id}/handle:
+    post:
+      tags: [ Notifications ]
+      summary: Accept or Decline an action request
+      operationId: handleNotificationAction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationHandleDto'
+      responses:
+        '200':
+          description: Success
+
+  /notifications/{id}:
+    patch:
+      tags: [ Notifications ]
+      summary: Mark notification as read
+      operationId: markAsRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Marked as read
+    delete:
+      tags: [ Notifications ]
+      summary: Delete notification
+      operationId: deleteNotification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+components:
+  schemas:
+    AnnouncementResponse:
+      type: object
+      required: [ id, message, isRead, createdAt ]
+      properties:
+        id: { type: string, format: uuid }
+        message: { type: string }
+        isRead: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    ActionRequestResponse:
+      type: object
+      required: [ id, message, isRead, createdAt, actionType, relatedEntityId, completed ]
+      properties:
+        id: { type: string, format: uuid }
+        message: { type: string }
+        isRead: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        actionType: { $ref: '#/components/schemas/NotificationActionType' }
+        relatedEntityId: { type: string, format: uuid }
+        completed: { type: boolean }
+        metadata:
+          type: object
+          additionalProperties: { type: string }
+
+    CreateActionRequestDto:
+      type: object
+      required: [ recipientId, message, actionType, relatedEntityId ]
+      properties:
+        recipientId: { type: string, format: uuid }
+        message: { type: string }
+        actionType: { $ref: '#/components/schemas/NotificationActionType' }
+        relatedEntityId: { type: string, format: uuid }
+        metadata:
+          type: object
+          additionalProperties: { type: string }
+
+    NotificationHandleDto:
+      type: object
+      required: [ confirmed ]
+      properties:
+        confirmed: { type: boolean }
+
+    NotificationActionType:
+      type: string
+      enum: [ ENROLLMENT_CONFIRM, LESSON_RESCHEDULE, LESSON_CANCEL ]

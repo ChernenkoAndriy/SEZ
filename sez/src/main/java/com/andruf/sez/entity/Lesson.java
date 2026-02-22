@@ -2,36 +2,42 @@ package com.andruf.sez.entity;
 
 import com.andruf.sez.entity.enums.LessonStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "lessons")
+@NoArgsConstructor
+@SuperBuilder
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@SuperBuilder
-public class Lesson extends BaseEntity {
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "enrollment_id", nullable = false)
+public class Lesson extends BaseEntity<UUID> {
+    @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @NotNull(message = "Enrollment reference is required")
     private Enrollment enrollment;
 
-    @Column(nullable = false)
+    @NotNull(message = "Start time is required")
+    @Future(message = "Lesson cannot be scheduled in the past")
     private LocalDateTime startTime;
 
-    @Column(nullable = false)
+    @NotNull(message = "End time is required")
     private LocalDateTime endTime;
 
+    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private LessonStatus status;
 
-    private BigDecimal price;
+    @NotNull(message = "Price is required")
+    @PositiveOrZero(message = "Price cannot be negative")
+    private java.math.BigDecimal price;
 
-    @Column(length = 1000)
-    private String notes;
+    @Size(max = 500, message = "Video call URL is too long")
+    @Column(name = "video_call_url", length = 500)
+    private String videoCallUrl;
 }

@@ -1,0 +1,181 @@
+paths:
+  /reviews:
+    get:
+      tags: [ Reviews ]
+      summary: Get list of reviews for a specific tutor
+      operationId: getTutorReviews
+      parameters:
+        - name: tutorId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sortByRatingUp
+          in: query
+          schema:
+            type: boolean
+            default: false
+            description: "Sort reviews by rating in descending order"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+      responses:
+        '200':
+          description: List of reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewResponse'
+
+    post:
+      tags: [ Reviews ]
+      summary: Create a new review for a tutor
+      operationId: createReview
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewDto'
+      responses:
+        '201':
+          description: Review created successfully
+
+  /reviews/my:
+    get:
+      tags: [ Reviews ]
+      summary: Get current student's review for a specific tutor
+      operationId: getMyReviewForTutor
+      parameters:
+        - name: tutorId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Review retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+        '404':
+          description: Review not found
+
+  /reviews/{id}:
+    patch:
+      tags: [ Reviews ]
+      summary: Update existing review rating and comment
+      operationId: updateReview
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReviewDto'
+      responses:
+        '200':
+          description: Review updated successfully
+        '404':
+          description: Review not found
+
+    delete:
+      tags: [ Reviews ]
+      summary: Delete review by ID
+      operationId: deleteReview
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Review deleted successfully
+        '404':
+          description: Review not found
+
+components:
+  schemas:
+    ReviewResponse:
+      type: object
+      required: [ id, tutorId, studentId, rating, comment ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tutorId:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        tutorName:
+          type: string
+          description: "Name of the tutor being reviewed"
+        tutorSurname:
+          type: string
+          description: "Surname of the tutor being reviewed"
+        studentName:
+          type: string
+          description: "Name of the student who wrote the review"
+        studentSurname:
+          type: string
+          description: "Surname of the student who wrote the review"
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          description: "Detailed feedback from student"
+
+    CreateReviewDto:
+      type: object
+      required: [ tutorId, rating]
+      properties:
+        tutorId: { type: string, format: uuid }
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: "Rating from 1 to 5 stars"
+        comment:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: "Detailed feedback about the course"
+
+    UpdateReviewDto:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: "Rating from 1 to 5 stars"
+        comment:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: "Detailed feedback about the course"

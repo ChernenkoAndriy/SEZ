@@ -1,0 +1,86 @@
+paths:
+  /tutors:
+    get:
+      tags: [ Tutors ]
+      summary: Get list of tutors
+      operationId: getTutors
+      responses:
+        '200':
+          description: List of tutors retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TutorResponse'
+
+  /tutors/{id}:
+    get:
+      tags: [ Tutors ]
+      summary: Get tutor profile by ID
+      operationId: getTutorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tutor profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TutorResponse'
+        '404':
+          description: Tutor not found
+
+    patch:
+      tags: [ Tutors ]
+      summary: Update tutor profile data
+      operationId: updateTutor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTutorDto'
+      responses:
+        '200':
+          description: Tutor profile updated successfully
+        '404':
+          description: Tutor not found
+
+components:
+  schemas:
+    TutorResponse:
+      type: object
+      required: [ id, email, name, surname, role, bio, hourlyRate, rating ]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string }
+        surname: { type: string }
+        patronymic: { type: string }
+        bio: { type: string }
+        hourlyRate: { type: number, format: double }
+        rating: { type: number, format: double }
+
+    UpdateTutorDto:
+      type: object
+      description: Fields that can be updated in tutor profile
+      required: [ name, surname, bio, hourlyRate ]
+      properties:
+        name: { type: string }
+        surname: { type: string }
+        patronymic: { type: string }
+        bio: { type: string }
+        hourlyRate: { type: number }
