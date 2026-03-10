@@ -6,19 +6,21 @@ import com.andruf.sez.gendto.UpdateStudentDto;
 import com.andruf.sez.security.services.UserDetailsImpl;
 import com.andruf.sez.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class StudentController implements StudentsApi {
 
     private final StudentService studentService;
-
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<List<StudentResponse>> getStudents(
             String name,
@@ -37,6 +39,7 @@ public class StudentController implements StudentsApi {
         return ResponseEntity.ok(students);
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<List<StudentResponse>> getStudentsByCourseId(UUID courseId) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
@@ -54,6 +57,7 @@ public class StudentController implements StudentsApi {
     @Override
     public ResponseEntity<Void> updateStudent(UUID id, UpdateStudentDto updateStudentDto) {
         studentService.update(id, updateStudentDto);
+        log.info("Student has been updated: {}", id);
         return ResponseEntity.ok().build();
     }
 }

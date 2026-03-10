@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -57,6 +58,7 @@ public class AuthService {
 
     @Transactional
     public void registerTutor(TutorRegistrationDto request) {
+        emailService.sendGreetingEmail(request.getEmail());
         Tutor tutor = Tutor.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -75,6 +77,7 @@ public class AuthService {
 
     @Transactional
     public void registerStudent(StudentRegistrationDto request) {
+        emailService.sendGreetingEmail(request.getEmail());
         Student student = Student.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -153,7 +156,7 @@ public class AuthService {
         }
         String token = UUID.randomUUID().toString();
         user.setResetPasswordToken(token);
-        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(15));
+        user.setResetPasswordTokenExpiry(OffsetDateTime.now().plusMinutes(15));
         userRepository.save(user);
         emailService.sendResetPasswordEmail(user.getEmail(), token);
     }
@@ -162,7 +165,7 @@ public class AuthService {
     public void updatePassword(String token, String newPassword) {
         User user = userRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> new EntityNotFoundException("Could not find user with token: " + token));
-        if (user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
+        if (user.getResetPasswordTokenExpiry().isBefore(OffsetDateTime.now())) {
             throw new BusinessException("Reset Password Token has expired", "INVALID_TOKEN_EXPIRY");
         }
         user.setPassword(passwordEncoder.encode(newPassword));

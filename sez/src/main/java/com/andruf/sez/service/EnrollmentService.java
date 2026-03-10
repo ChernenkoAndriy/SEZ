@@ -61,7 +61,7 @@ public class EnrollmentService extends BaseCRUDService<Enrollment, CreateEnrollm
         actionRequest.setRecipientId(tutor.getId());
         actionRequest.setRelatedEntityId(saved.getId());
         actionRequest.setActionType(NotificationActionType.ENROLLMENT_CONFIRM);
-        actionRequest.setMessage("Студент " + student.getName() + " хоче записатися на ваш курс: "
+        actionRequest.setMessage("Student " + student.getName() + " wants to enroll in your course by "
                 + saved.getCourse().getSubject().getName());
 
         notificationService.createActionRequest(actionRequest);

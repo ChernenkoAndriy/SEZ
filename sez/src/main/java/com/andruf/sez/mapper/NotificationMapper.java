@@ -3,10 +3,8 @@ package com.andruf.sez.mapper;
 import com.andruf.sez.config.MapperConfig;
 import com.andruf.sez.entity.ActionRequestNotification;
 import com.andruf.sez.entity.Notification;
-import com.andruf.sez.gendto.ActionRequestResponse;
-import com.andruf.sez.gendto.AnnouncementResponse;
-import com.andruf.sez.gendto.CreateActionRequestDto;
-import com.andruf.sez.gendto.NotificationActionType;
+import com.andruf.sez.entity.NotificationMetadata;
+import com.andruf.sez.gendto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -17,7 +15,6 @@ import java.util.List;
 public interface NotificationMapper {
 
     AnnouncementResponse toAnnouncementResponse(Notification entity);
-
     List<AnnouncementResponse> toAnnouncementResponseList(List<Notification> entities);
 
     ActionRequestResponse toActionResponse(ActionRequestNotification entity);
@@ -29,6 +26,16 @@ public interface NotificationMapper {
     @Mapping(target = "isRead", constant = "false")
     @Mapping(target = "completed", constant = "false")
     ActionRequestNotification toEntity(CreateActionRequestDto dto);
+
+    @Mapping(target = "key", source = "key")
+    @Mapping(target = "value", source = "value")
+    NotificationMetadataDto toMetadataDto(com.andruf.sez.entity.NotificationMetadata entity);
+
+    @Mapping(target = "key", source = "key")
+    @Mapping(target = "value", source = "value")
+    @Mapping(target = "notification", ignore = true)
+    NotificationMetadata toMetadataEntity(com.andruf.sez.gendto.NotificationMetadataDto dto);
+
 
     default NotificationActionType mapActionType(com.andruf.sez.entity.enums.NotificationActionType type) {
         if (type == null) return null;

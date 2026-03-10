@@ -6,8 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
-
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -24,10 +23,10 @@ public class Lesson extends BaseEntity<UUID> {
 
     @NotNull(message = "Start time is required")
     @Future(message = "Lesson cannot be scheduled in the past")
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
     @NotNull(message = "End time is required")
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)

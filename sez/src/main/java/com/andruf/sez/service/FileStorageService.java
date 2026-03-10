@@ -36,4 +36,13 @@ public class FileStorageService {
             throw new BusinessException("URL is malformed: " + e.getMessage(), "FILE_READ_ERROR");
         }
     }
+
+    public void deleteFile(String filePath) {
+        try {
+            Path file = root.resolve(filePath);
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            throw new BusinessException("Could not delete file: " + e.getMessage(), "FILE_DELETE_ERROR");
+        }
+    }
 }

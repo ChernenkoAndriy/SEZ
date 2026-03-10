@@ -14,7 +14,7 @@ public interface EnrollmentMapper extends IBaseMapper<Enrollment, CreateEnrollme
 
     @Override
     @Mapping(source = "course.subject.name", target = "subjectName")
-    @Mapping(source = "course.tutor.name", target = "tutorName") // Можна додати прізвище через expression
+    @Mapping(source = "course.tutor.name", target = "tutorName")
     @Mapping(source = "course.id", target = "courseId")
     @Mapping(source = "student.id", target = "studentId")
     EnrollmentResponse toResponse(Enrollment entity);

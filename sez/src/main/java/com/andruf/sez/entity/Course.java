@@ -7,8 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.OnDelete;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -22,12 +20,12 @@ import java.util.UUID;
 public class Course extends BaseEntity<UUID> {
 
     @NotNull(message = "Tutor is required")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tutor_id", nullable = false)
     private Tutor tutor;
 
     @NotNull(message = "Subject is required")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 

@@ -20,4 +20,13 @@ public class EmailService {
 
         mailSender.send(message);
     }
+    public void sendGreetingEmail(String to) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("SEZ Support <no-reply@sez.com>");
+        message.setTo(to);
+        message.setSubject("Відновлення пароля | SEZ Platform");
+        message.setText("Дякую за реєстрацію");
+
+        mailSender.send(message);
+    }
 }

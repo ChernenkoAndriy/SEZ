@@ -3,6 +3,7 @@ package com.andruf.sez.service;
 import com.andruf.sez.criteria.LessonCriteria;
 import com.andruf.sez.entity.Enrollment;
 import com.andruf.sez.entity.Lesson;
+import com.andruf.sez.entity.NotificationMetadata;
 import com.andruf.sez.entity.User;
 import com.andruf.sez.entity.enums.LessonStatus;
 import com.andruf.sez.entity.enums.UserRole;
@@ -10,10 +11,13 @@ import com.andruf.sez.event.NotificationEvent;
 import com.andruf.sez.exception.EntityNotFoundException;
 import com.andruf.sez.gendto.*;
 import com.andruf.sez.mapper.LessonMapper;
+import com.andruf.sez.repository.AttachmentRepository;
 import com.andruf.sez.repository.EnrollmentRepository;
 import com.andruf.sez.repository.LessonRepository;
+import com.andruf.sez.repository.NotificationRepository;
 import com.andruf.sez.security.services.UserDetailsImpl;
 import com.andruf.sez.validator.LessonValidator;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +27,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
 
+
+@RequiredArgsConstructor
 @Service
 public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, UpdateLessonDto, LessonResponse, UUID> {
-    @Setter(onMethod = @__({@Autowired}))
-    private LessonRepository lessonRepository;
-    @Setter(onMethod = @__({@Autowired}))
-    private LessonMapper lessonMapper;
-    @Setter(onMethod_ = @Autowired)
-    private ApplicationEventPublisher eventPublisher;
-    @Setter(onMethod_ = @Autowired)
-    private LessonValidator lessonValidator;
-    @Setter(onMethod_ = @Autowired)
-    private NotificationService notificationService;
-    @Setter(onMethod_ = @Autowired)
-    private EnrollmentRepository enrollmentRepository;
+    private final LessonRepository lessonRepository;
+    private final LessonMapper lessonMapper;
+    private final ApplicationEventPublisher eventPublisher;
+    private final LessonValidator lessonValidator;
+    private final NotificationService notificationService;
+    private final EnrollmentRepository enrollmentRepository;
+    private final AttachmentRepository attachmentRepository;
+    private final FileStorageService fileStorageService;
+    private final NotificationRepository notificationRepository;
 
-    public List<LessonResponse> getMyLessons(UserDetailsImpl user, LocalDateTime from, LocalDateTime to, String status) {
+    public List<LessonResponse> getMyLessons(UserDetailsImpl user, OffsetDateTime from, OffsetDateTime to, String status) {
         LessonCriteria criteria = new LessonCriteria();
         criteria.filterByStartTimeAfter(from);
         criteria.filterByEndTimeBefore(to);
@@ -58,6 +63,7 @@ public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, Upda
     public LessonDetailsResponse getLessonDetails(@NonNull UUID id) {
         Lesson lesson = lessonRepository.findByIdWithFullDetails(id)
                 .orElseThrow(() -> new EntityNotFoundException("Lesson Not Found: " + id));;
+
         return lessonMapper.toDetailsResponse(lesson);
     }
     @Override
@@ -77,8 +83,8 @@ public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, Upda
             Lesson tempLesson = new Lesson();
             tempLesson.setId(lesson.getId());
             tempLesson.setEnrollment(lesson.getEnrollment());
-            tempLesson.setStartTime(updateLessonDto.getStartTime().toLocalDateTime());
-            tempLesson.setEndTime(updateLessonDto.getEndTime().toLocalDateTime());
+            tempLesson.setStartTime(updateLessonDto.getStartTime());
+            tempLesson.setEndTime(updateLessonDto.getEndTime());
             lessonValidator.validate(tempLesson);
             UserDetailsImpl currentUser = (UserDetailsImpl) SecurityContextHolder.getContext()
                     .getAuthentication().getPrincipal();
@@ -87,18 +93,18 @@ public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, Upda
 
             User recipient = isTutor ? lesson.getEnrollment().getStudent()
                     : lesson.getEnrollment().getCourse().getTutor();
-            java.util.Map<String, String> metadata = new java.util.HashMap<>();
+            List<NotificationMetadataDto> metadata = new ArrayList<>();
             if (updateLessonDto.getStartTime() != null) {
-                metadata.put("newStartTime", updateLessonDto.getStartTime().toString());
+                metadata.add(new NotificationMetadataDto("newStartTime", updateLessonDto.getStartTime().toString()));
             }
             if (updateLessonDto.getEndTime() != null) {
-                metadata.put("newEndTime", updateLessonDto.getEndTime().toString());
+                metadata.add(new NotificationMetadataDto("newEndTime", updateLessonDto.getEndTime().toString()));
             }
             CreateActionRequestDto notificationDto = new CreateActionRequestDto();
             notificationDto.setRecipientId(recipient.getId());
             notificationDto.setRelatedEntityId(lesson.getId());
             notificationDto.setActionType(NotificationActionType.LESSON_RESCHEDULE);
-            notificationDto.setMessage("Користувач " + currentUser.getUsername() + " пропонує змінити час уроку.");
+            notificationDto.setMessage("User " + currentUser.getUsername() + " wants to change lesson time.");
             notificationDto.setMetadata(metadata);
 
             notificationService.createActionRequest(notificationDto);
@@ -111,13 +117,14 @@ public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, Upda
         Lesson lesson = repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Lesson Not Found: " + id));;
         String studentName = userDetails.getUsername();
         User tutorUser = lesson.getEnrollment().getCourse().getTutor();
+        notificationRepository.deleteActionRequestsByRelatedEntityIds(java.util.List.of(id));
+        delete(id);
         eventPublisher.publishEvent(new NotificationEvent(
                 this,
                 tutorUser,
-                "Студент " + studentName + " скасував урок, запланований на " +
+                "Student " + studentName + " has cancelled lesson, planned at " +
                         lesson.getStartTime().toString()
         ));
-    delete(id);
     }
 
     @Override
@@ -138,10 +145,25 @@ public class LessonService extends BaseCRUDService<Lesson, CreateLessonDto, Upda
         eventPublisher.publishEvent(new NotificationEvent(
                 this,
                 student,
-                "Урок з " + tutorName + " заплановано на: " +
+                "Lesson with " + tutorName + " is planned at: " +
                         lesson.getStartTime().toString() + " - " + lesson.getEndTime().toString()
         ));
 
         return saved.getId();
+    }
+
+    public void cleanupOldLessons() {
+        OffsetDateTime threshold = OffsetDateTime.now().minusWeeks(1);
+        List<Lesson> oldLessons = lessonRepository.findAll().stream()
+                .filter(l -> l.getEndTime().isBefore(threshold) && l.getStatus() == LessonStatus.CONDUCTED)
+                .toList();
+
+        if (oldLessons.isEmpty()) return;
+        List<UUID> lessonIds = oldLessons.stream().map(Lesson::getId).toList();
+        List<String> fileNames = attachmentRepository.findFileNamesByOldLessons(threshold);
+        fileNames.forEach(fileStorageService::deleteFile);
+        notificationRepository.deleteActionRequestsByRelatedEntityIds(lessonIds);
+
+        lessonRepository.deleteOldFinishedLessons(threshold);
     }
 }

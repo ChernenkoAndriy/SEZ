@@ -15,7 +15,7 @@ public interface CourseMapper extends IBaseMapper<Course, CreateCourseDto, Updat
     @Override
     @Mapping(source = "tutor.id", target = "tutorId")
     @Mapping(source = "tutor.name", target = "tutorName")
-    @Mapping(source = "tutor.surname", target = "tutorSurname")// Можна додати прізвище через expression, якщо потрібно
+    @Mapping(source = "tutor.surname", target = "tutorSurname")
     @Mapping(source = "subject.name", target = "subjectName")
     @Mapping(source = "tutor.rating", target = "rating")
     CourseResponse toResponse(Course entity);

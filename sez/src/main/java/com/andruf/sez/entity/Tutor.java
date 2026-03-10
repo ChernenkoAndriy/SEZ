@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tutors")
@@ -21,7 +20,7 @@ public class Tutor extends User {
     @JoinColumn(name = "id")
     private User user;
 
-    @Size(min = 0, max = 2000, message = "Bio must be between 0 and 2000 characters")
+    @Size(min = 0, max = 1000, message = "Bio must be between 0 and 2000 characters")
     @Column(columnDefinition = "TEXT")
     private String bio;
 

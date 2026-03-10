@@ -9,9 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.lang.Nullable;
-
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -59,7 +57,7 @@ public class User extends BaseEntity<UUID> {
 
     private String resetPasswordToken;
 
-    private LocalDateTime resetPasswordTokenExpiry;
+    private OffsetDateTime resetPasswordTokenExpiry;
 
     @Builder.Default
     private boolean enabled = true;

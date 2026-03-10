@@ -1,6 +1,7 @@
 package com.andruf.sez.event;
 
 import com.andruf.sez.entity.Notification;
+import com.andruf.sez.entity.enums.NotificationType;
 import com.andruf.sez.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -17,6 +18,7 @@ public class NotificationListener {
         Notification notification = Notification.builder()
                 .recipient(event.getRecipient())
                 .message(event.getMessage())
+                .type(NotificationType.ANNOUNCEMENT)
                 .isRead(false)
                 .build();
         repository.save(notification);

@@ -7,6 +7,7 @@ import com.andruf.sez.gendto.*;
 import com.andruf.sez.security.services.UserDetailsImpl;
 import com.andruf.sez.service.AssignmentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,25 +21,25 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AssignmentController implements AssignmentsApi {
 
     private final AssignmentService assignmentService;
-
+    @PreAuthorize("hasRole('STUDENT')")
     @Override
     public ResponseEntity<Void> completeAssignment(UUID id) {
         assignmentService.submitSolution(id);
         return ResponseEntity.ok().build();
     }
-
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<Void> createAssignment(UUID lessonId, CreateAssignmentDto createAssignmentDto) {
         assignmentService.createForLesson(lessonId, createAssignmentDto);
+        log.info("Assignment {} created", createAssignmentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
     @Override
     public ResponseEntity<Void> uploadAttachment(UUID id, MultipartFile file) {
         try {
@@ -63,6 +64,7 @@ public class AssignmentController implements AssignmentsApi {
     @Override
     public ResponseEntity<AssignmentResponse> getAssignmentByLesson(UUID id) {
         AssignmentResponse response = assignmentService.getAssignmentByLesson(id);
+        log.info("Assignment {} found for lesson", id);
         return ResponseEntity.ok(response);
     }
 
@@ -108,13 +110,14 @@ public class AssignmentController implements AssignmentsApi {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<Void> updateAssignmentInfo(UUID id, UpdateAssignmentInfoDto updateAssignmentInfoDto) {
         assignmentService.update(id, updateAssignmentInfoDto);
         return ResponseEntity.ok().build();
     }
 
-
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<Void> gradeAssignment(UUID id, GradeAssignmentDto gradeAssignmentDto) {
         assignmentService.gradeSolution(id, gradeAssignmentDto);

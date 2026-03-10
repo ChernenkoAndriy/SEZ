@@ -72,13 +72,13 @@ public class CourseService extends BaseCRUDService<Course, CreateCourseDto, Upda
                 responseList.sort((c1, c2) -> {
                     BigDecimal r1 = c1.getRating() != null ? c1.getRating() : BigDecimal.valueOf(0.0);
                     BigDecimal r2 = c2.getRating() != null ? c2.getRating() : BigDecimal.valueOf(0.0);
-                    return r2.compareTo(r1); // Від більшого до меншого
+                    return r2.compareTo(r1);
                 });
             } else if (sortBy.contains("rating_asc")) {
                 responseList.sort((c1, c2) -> {
                     BigDecimal r1 = c1.getRating() != null ? c1.getRating() : BigDecimal.valueOf(0.0);
                     BigDecimal r2 = c2.getRating() != null ? c2.getRating() : BigDecimal.valueOf(0.0);
-                    return r1.compareTo(r2); // Від меншого до більшого
+                    return r1.compareTo(r2);
                 });
             }
         }

@@ -18,6 +18,7 @@ import java.util.UUID;
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("ANNOUNCEMENT")
 public class Notification extends BaseEntity<UUID> {
 
     @NotNull(message = "Recipient is required")

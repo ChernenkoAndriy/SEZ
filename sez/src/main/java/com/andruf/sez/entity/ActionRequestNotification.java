@@ -5,11 +5,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.util.Map;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "action_request_notifications")
 @DiscriminatorValue("REQUEST")
 @NoArgsConstructor
 @SuperBuilder
@@ -27,12 +28,12 @@ public class ActionRequestNotification extends Notification {
     @Builder.Default
     private boolean completed = false;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "notification_metadata",
-            joinColumns = @JoinColumn(name = "notification_id")
+    @OneToMany(
+            mappedBy = "notification",
+            orphanRemoval = true,
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
     )
-    @MapKeyColumn(name = "meta_key")
-    @Column(name = "meta_value")
-    private Map<String, String> metadata;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<NotificationMetadata> metadataList;
 }

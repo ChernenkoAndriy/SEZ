@@ -14,8 +14,13 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Component
 @RequiredArgsConstructor
@@ -23,11 +28,19 @@ public class DataInitializer {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final DataSource dataSource; // Для виконання SQL-скриптів
+    private final DataSource dataSource;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void run() {
+        Path root = Paths.get("uploads");
+        try {
+            FileSystemUtils.deleteRecursively(root);
+            Files.createDirectories(root);
+            System.out.println("Папка uploads була успішно очищена та створена заново.");
+        } catch (IOException e) {
+            throw new RuntimeException("Не вдалося ініціалізувати папку uploads: " + e.getMessage());
+        }
         if (userRepository.count() == 0) {
             initializeUsers();
             userRepository.flush();

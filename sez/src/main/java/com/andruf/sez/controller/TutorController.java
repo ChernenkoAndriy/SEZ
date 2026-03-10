@@ -7,6 +7,7 @@ import com.andruf.sez.service.TutorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class TutorController implements TutorsApi {
         return ResponseEntity.ok(tutorService.getTutorResponseById(id));
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @Override
     public ResponseEntity<Void> updateTutor(UUID id, UpdateTutorDto updateTutorDto) {
         tutorService.update(id, updateTutorDto);

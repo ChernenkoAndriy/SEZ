@@ -67,15 +67,12 @@ public class CourseCriteria extends Criteria<Course> {
             Subquery<UUID> subquery = query.subquery(UUID.class);
             Root<Enrollment> enrollmentRoot = subquery.from(Enrollment.class);
 
-            // Базова умова підзапиту: цей студент
             var predicate = cb.equal(enrollmentRoot.get("student").get("id"), studentId);
 
             if (excludeEnrolled) {
-                // Ті, на які НЕ записаний
                 subquery.select(enrollmentRoot.get("course").get("id")).where(predicate);
                 return cb.not(root.get("id").in(subquery));
             } else {
-                // Ті, де статус ACTIVE
                 subquery.select(enrollmentRoot.get("course").get("id"))
                         .where(cb.and(
                                 predicate,

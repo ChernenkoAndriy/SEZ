@@ -7,13 +7,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-@Slf4j // Додає логер для виведення в консоль
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(SezException.class)
     public ResponseEntity<ErrorResponse> handleSezException(SezException ex) {
-        // Виводимо в консоль повідомлення та код
         log.error("Business Exception [{}]: {}", ex.getCode(), ex.getMessage());
 
         ErrorResponse error = new ErrorResponse();

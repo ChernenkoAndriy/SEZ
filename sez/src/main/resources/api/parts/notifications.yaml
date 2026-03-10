@@ -125,8 +125,9 @@ components:
         relatedEntityId: { type: string, format: uuid }
         completed: { type: boolean }
         metadata:
-          type: object
-          additionalProperties: { type: string }
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationMetadataDto'
 
     CreateActionRequestDto:
       type: object
@@ -137,8 +138,9 @@ components:
         actionType: { $ref: '#/components/schemas/NotificationActionType' }
         relatedEntityId: { type: string, format: uuid }
         metadata:
-          type: object
-          additionalProperties: { type: string }
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationMetadataDto'
 
     NotificationHandleDto:
       type: object
@@ -149,3 +151,14 @@ components:
     NotificationActionType:
       type: string
       enum: [ ENROLLMENT_CONFIRM, LESSON_RESCHEDULE, LESSON_CANCEL ]
+
+    NotificationMetadataDto:
+      type: object
+      required: [ key, value ]
+      properties:
+        key:
+          type: string
+          description: "metadata key"
+        value:
+          type: string
+          description: "metadata value"

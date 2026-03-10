@@ -55,12 +55,10 @@ public class JwtUtils {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Тут можна додати логування помилок (Expired, Invalid, і т.д.)
         }
         return false;
     }
 
-    // У JwtUtils.java додайте ці методи
     public Date getExpirationDateFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -70,7 +68,6 @@ public class JwtUtils {
                 .getExpiration();
     }
 
-    // Метод для генерації токена без об'єкта Authentication (для зручності)
     public String generateTokenFromUserDetails(UserDetails userDetails) {
         String role = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())

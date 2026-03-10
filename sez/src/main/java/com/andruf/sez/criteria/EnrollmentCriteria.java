@@ -26,7 +26,6 @@ public class EnrollmentCriteria extends Criteria<Enrollment> {
     public void filterByTutorName(String tutorName) {
         if (tutorName != null && !tutorName.isBlank()) {
             add((root, query, cb) -> {
-                // Використання JoinType.LEFT для відповідності налаштуванням CriteriaRepository
                 Join<Enrollment, Course> courseJoin = root.join("course", JoinType.LEFT);
                 Join<Course, Tutor> tutorJoin = courseJoin.join("tutor", JoinType.LEFT);
 
@@ -42,7 +41,6 @@ public class EnrollmentCriteria extends Criteria<Enrollment> {
     public void filterByStudentName(String studentName) {
         if (studentName != null && !studentName.isBlank()) {
             add((root, query, cb) -> {
-                // Зміна на JoinType.LEFT для коректного відображення списку студентів
                 Join<Enrollment, Student> studentJoin = root.join("student", JoinType.LEFT);
                 String pattern = "%" + studentName.toLowerCase() + "%";
                 return cb.or(
@@ -70,7 +68,6 @@ public class EnrollmentCriteria extends Criteria<Enrollment> {
     public void filterByStudentId(UUID studentId) {
         if (studentId != null) {
             add((root, query, cb) -> {
-                // Використання JOIN для фільтрації за конкретним ID
                 Join<Enrollment, Student> studentJoin = root.join("student", JoinType.LEFT);
                 return cb.equal(studentJoin.get("id"), studentId);
             });
@@ -80,7 +77,6 @@ public class EnrollmentCriteria extends Criteria<Enrollment> {
     public void filterByTutorId(UUID tutorId) {
         if (tutorId != null) {
             add((root, query, cb) -> {
-                // Використання JoinType.LEFT для усунення помилок IllegalStateException при запитах
                 Join<Enrollment, Course> courseJoin = root.join("course", JoinType.LEFT);
                 return cb.equal(courseJoin.get("tutor").get("id"), tutorId);
             });

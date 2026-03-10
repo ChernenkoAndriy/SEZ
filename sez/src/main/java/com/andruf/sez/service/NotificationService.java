@@ -4,15 +4,20 @@ import com.andruf.sez.criteria.CriteriaRepository;
 import com.andruf.sez.criteria.NotificationCriteria;
 import com.andruf.sez.entity.ActionRequestNotification;
 import com.andruf.sez.entity.Notification;
+import com.andruf.sez.entity.NotificationMetadata;
+import com.andruf.sez.entity.enums.NotificationType;
 import com.andruf.sez.gendto.ActionRequestResponse;
 import com.andruf.sez.gendto.AnnouncementResponse;
 import com.andruf.sez.gendto.CreateActionRequestDto;
 import com.andruf.sez.gendto.NotificationHandleDto;
 import com.andruf.sez.mapper.NotificationMapper;
 import com.andruf.sez.repository.NotificationRepository;
+import com.andruf.sez.validator.NotificationValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +30,8 @@ public class NotificationService{
     private CriteriaRepository criteriaRepository;
     @Autowired
     private NotificationMapper mapper;
+    @Autowired
+    private NotificationValidator validator;
 
     public NotificationService(
             NotificationRepository notificationRepository,
@@ -54,21 +61,27 @@ public class NotificationService{
     @Transactional
     public void createActionRequest(CreateActionRequestDto dto) {
         ActionRequestNotification notification = mapper.toEntity(dto);
+        List<NotificationMetadata> metadataList = dto.getMetadata().stream()
+                .map(mapper::toMetadataEntity)
+                .toList();
+        metadataList.forEach(meta -> meta.setNotification(notification));
+        notification.setMetadataList(metadataList);
+        validator.validateActionProcessing(notification);
         notificationRepository.save(notification);
     }
 
+    @Transactional
     public List<AnnouncementResponse> getAnnouncementsForUser(UUID userId, Integer page, Integer size) {
         NotificationCriteria criteria = new NotificationCriteria();
         criteria.filterByUserId(userId);
-        criteria.filterByType(com.andruf.sez.entity.enums.NotificationType.ANNOUNCEMENT);
         criteria.filterByReadStatus(false);
+        criteria.filterByType(NotificationType.ANNOUNCEMENT);
         criteria.sortByPriority();
-        criteria.sortByCreatedAtDesc();
         criteria.setPagination(page != null ? page : 0, size != null ? size : 20);
         List<Notification> notifications = criteriaRepository.find(criteria);
         return mapper.toAnnouncementResponseList(notifications);
     }
-
+    @Transactional
     public List<ActionRequestResponse> getActionRequestsForUser(UUID userId, Integer page, Integer size) {
         NotificationCriteria criteria = new NotificationCriteria();
         criteria.filterByUserId(userId);
@@ -82,5 +95,16 @@ public class NotificationService{
                 .map(ActionRequestNotification.class::cast)
                 .toList();
         return mapper.toActionResponseList(actionRequests);
+    }
+
+    @Transactional
+    public void deleteOldReadNotifications() {
+        OffsetDateTime threshold = OffsetDateTime.now().minusDays(3);
+        notificationRepository.deleteOldReadNotifications(threshold);
+    }
+
+    public void deleteOldReadRequestNotifications() {
+        OffsetDateTime threshold = OffsetDateTime.now().minusDays(3);
+        notificationRepository.deleteOldReadRequestNotifications(threshold);
     }
 }

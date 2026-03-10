@@ -44,4 +44,24 @@ public interface LessonMapper extends IBaseMapper<Lesson, CreateLessonDto, Updat
     default String mapUriToString(java.net.URI value) {
         return value != null ? value.toString() : null;
     }
+    @AfterMapping
+    default void setDetailsPartnerName(Lesson entity, @MappingTarget LessonDetailsResponse dto) {
+        if (entity.getEnrollment() != null) {
+            var enrollment = entity.getEnrollment();
+            var course = enrollment.getCourse();
+            var student = enrollment.getStudent();
+
+            if (course != null && course.getTutor() != null) {
+                var t = course.getTutor();
+                if (dto.getLesson() != null) {
+                    dto.getLesson().setPartnerName(t.getSurname() + " " + t.getName());
+                }
+                if (dto.getEnrollmentDetails() != null && dto.getEnrollmentDetails().getCourse() != null) {
+                    dto.getEnrollmentDetails().getCourse().setTutorId(t.getId());
+                    dto.getEnrollmentDetails().getCourse().setTutorName(t.getName());
+                    dto.getEnrollmentDetails().getCourse().setTutorSurname(t.getSurname());
+                }
+            }
+        }
+    }
 }

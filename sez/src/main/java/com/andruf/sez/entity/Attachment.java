@@ -3,6 +3,8 @@ package com.andruf.sez.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+
 import java.util.UUID;
 
 @Entity
@@ -19,5 +21,6 @@ public class Attachment extends BaseEntity<UUID> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignment_id")
+    @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Assignment assignment;
 }

@@ -1,4 +1,3 @@
--- 1. Створення предметів (якщо їх ще немає)
 INSERT INTO subjects (id, name, created_at) VALUES
                                                 (gen_random_uuid(), 'Mathematics', NOW()),
                                                 (gen_random_uuid(), 'Physics', NOW()),
@@ -27,7 +26,6 @@ INSERT INTO subjects (id, name, created_at) VALUES
                                                 (gen_random_uuid(), 'Soft Skills', NOW())
     ON CONFLICT (name) DO NOTHING;
 
--- 2. Створення курсів для репетитора andre.chrn@gmail.com
 INSERT INTO courses (id, tutor_id, subject_id, hourly_rate, description, created_at)
 SELECT
     gen_random_uuid(),
@@ -54,50 +52,43 @@ FROM courses c
 WHERE c.tutor_id = (SELECT id FROM users WHERE email = 'andre.chrn@gmail.com')
     ON CONFLICT DO NOTHING;
 
--- Додаємо Олену Петренко на English Language та German Language
 INSERT INTO enrollments (id, course_id, student_id, status, created_at)
 SELECT gen_random_uuid(), c.id, (SELECT id FROM users WHERE email = 'polina.chrnko@gmail.com'), 'ACTIVE', NOW()
 FROM courses c JOIN subjects s ON c.subject_id = s.id
 WHERE s.name IN ('English Language', 'German Language')
   AND c.tutor_id = (SELECT id FROM users WHERE email = 'andre.chrn@gmail.com');
 
--- Додаємо Дмитра Сидоренка на технічні курси (Java, Databases, Algorithms, Cybersecurity)
 INSERT INTO enrollments (id, course_id, student_id, status, created_at)
 SELECT gen_random_uuid(), c.id, (SELECT id FROM users WHERE email = 'student.dmytro@gmail.com'), 'ACTIVE', NOW()
 FROM courses c JOIN subjects s ON c.subject_id = s.id
 WHERE s.name IN ('Java Programming', 'Databases', 'Algorithms', 'Cybersecurity')
   AND c.tutor_id = (SELECT id FROM users WHERE email = 'andre.chrn@gmail.com');
 
--- Додаємо Івана (якщо він є в системі) на Психологію та Економіку
 INSERT INTO enrollments (id, course_id, student_id, status, created_at)
 SELECT gen_random_uuid(), c.id, (SELECT id FROM users WHERE email = 'student.ivan@gmail.com'), 'ACTIVE', NOW()
 FROM courses c JOIN subjects s ON c.subject_id = s.id
 WHERE s.name IN ('Psychology', 'Economics')
   AND c.tutor_id = (SELECT id FROM users WHERE email = 'andre.chrn@gmail.com');
 
--- 4. Створення занять (Lessons) для ВСІХ активних записів
 INSERT INTO lessons (id, enrollment_id, start_time, end_time, status, price, created_at)
 SELECT
     gen_random_uuid(),
     e.id,
-    -- Дата: розраховуємо зміщення на основі номера рядка
     CASE
         WHEN n = 1 THEN NOW() - (interval '1 day' * row_number() over (partition by e.student_id, n))
         ELSE NOW() + (interval '1 day' * row_number() over (partition by e.student_id, n))
         END,
-    -- Кінець уроку: +1 година
     CASE
         WHEN n = 1 THEN NOW() - (interval '1 day' * row_number() over (partition by e.student_id, n)) + interval '1 hour'
     ELSE NOW() + (interval '1 day' * row_number() over (partition by e.student_id, n)) + interval '1 hour'
 END,
-    -- Статус
     CASE WHEN n = 1 THEN 'CONDUCTED' ELSE 'PLANNED' END,
     (SELECT hourly_rate FROM courses WHERE id = e.course_id),
     NOW()
 FROM enrollments e
 CROSS JOIN (SELECT 1 as n UNION SELECT 2) as multiplier
 WHERE NOT EXISTS (SELECT 1 FROM lessons l WHERE l.enrollment_id = e.id);
--- 5. Створення домашніх завдань (Assignments)
+
 INSERT INTO assignments (id, lesson_id, title, description, status, created_at)
 SELECT
     gen_random_uuid(),
@@ -112,7 +103,6 @@ FROM lessons l
          JOIN subjects s ON c.subject_id = s.id
 WHERE NOT EXISTS (SELECT 1 FROM assignments a WHERE a.lesson_id = l.id);
 
--- 6. Додаємо відгуки від кожного студента
 INSERT INTO reviews (id, tutor_id, student_id, rating, comment, created_at)
 SELECT
     gen_random_uuid(),

@@ -2579,10 +2579,10 @@
             "type" : "boolean"
           },
           "metadata" : {
-            "additionalProperties" : {
-              "type" : "string"
+            "items" : {
+              "$ref" : "#/components/schemas/NotificationMetadataDto"
             },
-            "type" : "object"
+            "type" : "array"
           }
         },
         "required" : [ "actionType", "completed", "createdAt", "id", "isRead", "message", "relatedEntityId" ],
@@ -2591,6 +2591,20 @@
       "NotificationActionType" : {
         "enum" : [ "ENROLLMENT_CONFIRM", "LESSON_RESCHEDULE", "LESSON_CANCEL" ],
         "type" : "string"
+      },
+      "NotificationMetadataDto" : {
+        "properties" : {
+          "key" : {
+            "description" : "metadata key",
+            "type" : "string"
+          },
+          "value" : {
+            "description" : "metadata value",
+            "type" : "string"
+          }
+        },
+        "required" : [ "key", "value" ],
+        "type" : "object"
       },
       "CreateActionRequestDto" : {
         "properties" : {
@@ -2609,10 +2623,10 @@
             "type" : "string"
           },
           "metadata" : {
-            "additionalProperties" : {
-              "type" : "string"
+            "items" : {
+              "$ref" : "#/components/schemas/NotificationMetadataDto"
             },
-            "type" : "object"
+            "type" : "array"
           }
         },
         "required" : [ "actionType", "message", "recipientId", "relatedEntityId" ],

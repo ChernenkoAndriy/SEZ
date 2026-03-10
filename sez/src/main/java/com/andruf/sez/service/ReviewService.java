@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ReviewService extends BaseCRUDService<Review, CreateReviewDto, Upda
         Review review = mapper.toEntity(dto);
         review.setStudent(studentRepository.getReferenceById(studentId));
         review.setTutor(tutorRepository.getReferenceById(dto.getTutorId()));
-        review.setCreatedAt(LocalDateTime.now());
+        review.setCreatedAt(OffsetDateTime.now());
         reviewValidator.validate(review);
         reviewRepository.save(review);
     }

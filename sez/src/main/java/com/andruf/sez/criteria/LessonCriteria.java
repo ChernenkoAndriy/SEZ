@@ -2,7 +2,7 @@ package com.andruf.sez.criteria;
 
 import com.andruf.sez.entity.Lesson;
 import com.andruf.sez.entity.enums.LessonStatus;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class LessonCriteria extends Criteria<Lesson> {
@@ -11,13 +11,13 @@ public class LessonCriteria extends Criteria<Lesson> {
         super(Lesson.class);
     }
 
-    public void filterByStartTimeAfter(LocalDateTime from) {
+    public void filterByStartTimeAfter(OffsetDateTime from) {
         if (from != null) {
             add((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("startTime"), from));
         }
     }
 
-    public void filterByEndTimeBefore(LocalDateTime to) {
+    public void filterByEndTimeBefore(OffsetDateTime to) {
         if (to != null) {
             add((root, query, cb) -> cb.lessThanOrEqualTo(root.get("endTime"), to));
         }

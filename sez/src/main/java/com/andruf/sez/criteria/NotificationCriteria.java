@@ -10,7 +10,6 @@ public class NotificationCriteria extends Criteria<Notification> {
         super(Notification.class);
     }
     public void sortByPriority() {
-        orderBy((root, cb) -> cb.desc(root.get("type")));
         orderBy((root, cb) -> cb.desc(root.get("createdAt")));
     }
 

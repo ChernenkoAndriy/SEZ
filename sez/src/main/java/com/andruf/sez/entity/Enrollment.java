@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
-
 import java.util.UUID;
 
 @Entity
@@ -22,7 +21,7 @@ public class Enrollment extends BaseEntity<UUID> {
     private Course course;
 
     @NotNull(message = "Student reference is required")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "student_id", nullable = false)
     @OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private Student student;

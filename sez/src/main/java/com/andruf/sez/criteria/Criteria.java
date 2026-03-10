@@ -9,7 +9,6 @@ import java.util.List;
 public class Criteria<E> {
     private final Class<E> entityClass;
     private final List<PredicateFunction<E>> conditions = new ArrayList<>();
-    // Додаємо список функцій для сортування
     private final List<OrderFunction<E>> orders = new ArrayList<>();
     private Integer page = null;
     private Integer size = null;
@@ -35,7 +34,6 @@ public class Criteria<E> {
         Predicate toPredicate(Root<E> root, CriteriaQuery<?> query, CriteriaBuilder cb);
     }
 
-    // Новий інтерфейс для побудови об'єкта Order
     @FunctionalInterface
     public interface OrderFunction<E> {
         Order toOrder(Root<E> root, CriteriaBuilder cb);
